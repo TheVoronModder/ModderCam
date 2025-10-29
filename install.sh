@@ -1,4 +1,3 @@
-\
 #!/usr/bin/env bash
 set -euo pipefail
 echo "== ModderCam installer =="
@@ -6,18 +5,23 @@ echo "== ModderCam installer =="
 sudo apt-get update
 sudo apt-get install -y ffmpeg python3-venv python3-pip v4l-utils libatlas-base-dev
 
-APP_DIR="$HOME/printer_data/config/ModderCam"
-if [[ ! -d "$APP_DIR" ]]; then
-  echo "Please clone this repo at $APP_DIR first."
-  exit 1
+TARGET_DIR="$HOME/printer_data/config/ModderCam"
+CUR_DIR="$(pwd)"
+
+# Auto-move if not in printer_data/config
+if [[ "$CUR_DIR" != *"printer_data/config/ModderCam"* ]]; then
+  echo "Moving ModderCam to $TARGET_DIR..."
+  mkdir -p "$HOME/printer_data/config"
+  mv "$CUR_DIR" "$TARGET_DIR" 2>/dev/null || sudo mv "$CUR_DIR" "$TARGET_DIR"
+  cd "$TARGET_DIR"
 fi
-cd "$APP_DIR"
+
+echo "Installing into: $(pwd)"
 
 python3 -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
-pip install aiohttp websockets pyyaml
-pip install aiortc av numpy
+pip install aiohttp websockets pyyaml aiortc av numpy
 
 SERVICE=/etc/systemd/system/moddercam.service
 sudo bash -c "cat > $SERVICE" <<'UNIT'
@@ -40,4 +44,5 @@ sudo systemctl daemon-reload
 sudo systemctl enable moddercam
 sudo systemctl restart moddercam
 
-echo "Installed. Visit http://<pi-ip>:8090/"
+echo "✅ ModderCam installed successfully!"
+echo "Visit: http://<pi-ip>:8090/"
