@@ -33,6 +33,7 @@ git clone https://github.com/TheVoronModder/ModderCam.git
 cd ModderCam
 chmod +x install.sh uninstall.sh
 ./install.sh
+
 ```
 Then open your browser:  
  `http://<pi-ip>:8090/`
@@ -48,9 +49,12 @@ install_script: install.sh
 uninstall_script: uninstall.sh
 managed_services: moddercam
 refresh_interval: 168
+```
+## Uninstall
 
-
-
+```
+cd ~/printer_data/config/ModderCam
+./uninstall.sh
 ```
 ---
 
