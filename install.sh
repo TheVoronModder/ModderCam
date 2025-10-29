@@ -2,27 +2,34 @@
 set -euo pipefail
 echo "== ModderCam installer =="
 
+# --- System dependencies ---
 sudo apt-get update
 sudo apt-get install -y ffmpeg python3-venv python3-pip v4l-utils libatlas-base-dev
 
-TARGET_DIR="$HOME/printer_data/config/ModderCam"
+# --- Paths ---
+USER_HOME=$(eval echo ~${SUDO_USER:-$USER})
+CONFIG_ROOT="$USER_HOME/printer_data/config"
+TARGET_DIR="$CONFIG_ROOT/ModderCam"
 CUR_DIR="$(pwd)"
 
-# Auto-move if not in printer_data/config
+# --- If not already in config, move it there ---
 if [[ "$CUR_DIR" != *"printer_data/config/ModderCam"* ]]; then
-  echo "Moving ModderCam to $TARGET_DIR..."
-  mkdir -p "$HOME/printer_data/config"
-  mv "$CUR_DIR" "$TARGET_DIR" 2>/dev/null || sudo mv "$CUR_DIR" "$TARGET_DIR"
+  echo "Moving ModderCam repo into $TARGET_DIR ..."
+  mkdir -p "$CONFIG_ROOT"
+  # Copy recursively in case filesystem permissions differ
+  rsync -a --remove-source-files "$CUR_DIR"/ "$TARGET_DIR"/ 2>/dev/null || sudo rsync -a "$CUR_DIR"/ "$TARGET_DIR"/
   cd "$TARGET_DIR"
 fi
 
 echo "Installing into: $(pwd)"
 
+# --- Python environment setup ---
 python3 -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
 pip install aiohttp websockets pyyaml aiortc av numpy
 
+# --- Systemd service setup ---
 SERVICE=/etc/systemd/system/moddercam.service
 sudo bash -c "cat > $SERVICE" <<'UNIT'
 [Unit]
@@ -44,5 +51,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable moddercam
 sudo systemctl restart moddercam
 
+echo ""
 echo "✅ ModderCam installed successfully!"
-echo "Visit: http://<pi-ip>:8090/"
+echo "Visit your stream at: http://<pi-ip>:8090/"
+echo ""
