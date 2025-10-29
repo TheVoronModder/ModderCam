@@ -56,6 +56,28 @@ refresh_interval: 168
 cd ~/printer_data/config/ModderCam
 ./uninstall.sh
 ```
+
+If you have issues accessing your cam via web browser run this:
+
+```
+# Check service + logs
+sudo systemctl status moddercam --no-pager
+journalctl -u moddercam -n 100 --no-pager
+
+# Ports should be listening:
+ss -lntp | grep -E '8090|8091' || true
+
+# Local probe (expect JSON)
+curl -s http://127.0.0.1:8090/info
+
+# Self-repair if paths/venv got borked:
+cd ~/printer_data/config/ModderCam
+chmod +x scripts/repair.sh
+./scripts/repair.sh
+```
+
+
+
 ---
 
 ##  Klipper Integration
