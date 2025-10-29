@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ModderCam</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    html,body{margin:0;background:#0b0b0f;color:#e8f5ef;font-family:system-ui,Segoe UI,Roboto}
+    header{padding:10px 14px;border-bottom:1px solid #222;display:flex;align-items:center;gap:12px}
+    .pill{padding:2px 8px;border:1px solid #333;border-radius:999px}
+    #status{color:#00ff9c}
+    video,canvas{display:block;margin:0 auto;max-width:100vw;max-height:calc(100vh - 60px)}
+  </style>
+</head>
+<body>
+  <header>
+    <strong>ModderCam</strong>
+    <span id="status" class="pill">starting…</span>
+    <span id="meta" class="pill"></span>
+  </header>
+  <video id="rtc" playsinline autoplay muted style="display:none;"></video>
+  <canvas id="jsm" style="display:none;"></canvas>
+  <script src="https://cdn.jsdelivr.net/npm/jsmpeg@0.2.1/jsmpeg.min.js"></script>
+  <script>
+    const statEl = document.getElementById('status');
+    const canvas = document.getElementById('jsm');
+    const rtcEl  = document.getElementById('rtc');
+
+    async function start(){
+      const info = await fetch('/info').then(r=>r.json());
+      const wsUrl = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.hostname + ':' + info.ws_port;
+
+      try{
+        const pc = new RTCPeerConnection();
+        pc.ontrack = (e)=>{
+          rtcEl.srcObject = e.streams[0];
+          rtcEl.style.display = 'block';
+          canvas.style.display = 'none';
+          statEl.textContent = 'WebRTC';
+        };
+        const offer = await pc.createOffer({offerToReceiveVideo:true});
+        await pc.setLocalDescription(offer);
+        const res = await fetch('/webrtc/offer', {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({sdp: offer.sdp})});
+        if(!res.ok) throw new Error('webrtc failed');
+        const ans = await res.json();
+        await pc.setRemoteDescription({type:'answer', sdp: ans.sdp});
+        statEl.textContent = 'WebRTC live';
+        return;
+      }catch(e){
+        console.warn('WebRTC failed, falling back', e);
+      }
+
+      statEl.textContent = 'JSMpeg';
+      canvas.style.display = 'block';
+      new JSMpeg.Player(wsUrl, {canvas: canvas, audio:false});
+    }
+    start().catch(()=>{
+      const wsUrl = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.hostname + ':8091';
+      statEl.textContent = 'JSMpeg';
+      canvas.style.display = 'block';
+      new JSMpeg.Player(wsUrl, {canvas: canvas, audio:false});
+    });
+  </script>
+</body>
+</html>
