@@ -37,6 +37,25 @@ chmod +x install.sh uninstall.sh
 Then open your browser:  
  `http://<pi-ip>:8090/`
 
+## Update Manager
+```bash
+# --- ModderCam: Mainsail / Moonraker Update Manager entry ---
+[update_manager ModderCam]
+type: git_repo
+origin: https://github.com/TheVoronModder/ModderCam.git
+path: ~/printer_data/config/ModderCam
+primary_branch: main
+install_script: install.sh
+uninstall_script: uninstall.sh
+managed_services: moddercam
+# Optional: include these paths in Moonraker's backup
+backup_paths:
+    ~/printer_data/config/ModderCam/config.yaml
+    ~/printer_data/config/ModderCam/klipper/moddercam.cfg
+refresh_interval: 168   # check weekly (hours). Change as you like.
+
+
+```
 ---
 
 ##  Klipper Integration
