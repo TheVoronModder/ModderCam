@@ -1,0 +1,13 @@
+[Unit]
+Description=ModderCam mjpg-streamer
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/default/moddercam
+ExecStart=/usr/bin/mjpg_streamer -i "input_uvc.so -d ${DEVICE} -r ${RES} -f ${FPS} ${INPUT_OPTS}" -o "output_http.so -w /usr/lib/mjpg-streamer/www -p ${PORT} ${OUTPUT_OPTS}"
+Restart=on-failure
+User=pi
+Group=pi
+
+[Install]
+WantedBy=multi-user.target

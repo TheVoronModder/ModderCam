@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "actions": [
+    {
+      "name": "ModderCam: Snapshot",
+      "color": "primary",
+      "commands": [
+        "MODDERCAM_SNAPSHOT"
+      ]
+    },
+    {
+      "name": "ModderCam: Stream ON (Ping)",
+      "color": "success",
+      "commands": [
+        "MODDERCAM_STREAM_ON"
+      ]
+    },
+    {
+      "name": "ModderCam: Stream OFF (Note)",
+      "color": "danger",
+      "commands": [
+        "MODDERCAM_STREAM_OFF"
+      ]
+    }
+  ]
+}
