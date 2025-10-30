@@ -8,10 +8,10 @@ Mainsail buttons. It also **disables (and optionally removes) Crowsnest**.
 
 ## TL;DR (fresh install)
 ```bash
-unzip ModderCam-Standalone.zip
-cd ModderCam-Standalone
-chmod +x installer.sh
-./installer.sh --disable-crowsnest --autostart
+git clone --depth=1 git@github.com:TheVoronModder/ModderCam.git /tmp/moddercam && \
+cd /tmp/moddercam && chmod +x installer.sh && \
+./installer.sh --disable-crowsnest --autostart --port=8080 --res=1280x720 --fps=30
+
 ```
 Then in Mainsail: Settings → UI Settings → Custom Actions → Import →
 `mainsail/moddercam_buttons.json`
